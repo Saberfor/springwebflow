@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow http://www.springframework.org/schema/webflow/spring-webflow-2.4.xsd">
+    <!-- view-state中的view对应jsp文件夹中的jsp页面，on是触发事件，to对应state id -->
+    <!-- 流程文件-2015年6月14日15:51:56 -->
+    <!-- 根据排在第一位的顺序来执行 -->
+    <var name="mycart" class="com.gxc.bean.Cart"/>
+    <on-start>
+        <set name="conversationScope.cart" value="mycart"></set>
+    </on-start>
+    <view-state id="viewCart" view="viewCart">
+        <on-render>
+            <evaluate expression="productService.getProducts()" result="viewScope.list"/>
+        </on-render>
+        <transition on="submit" to="viewOrder"> </transition>
+        <transition on="addToCart" to="addProductToCart"/>
+    </view-state>
+    <subflow-state id="addProductToCart" subflow="addToCart">
+        <transition on="productAdded" to="viewCart" />
+    </subflow-state>
+    <view-state id="viewOrder" view="viewOrder">
+        <transition on="confirm" to="orderConfirmed">
+        </transition>
+    </view-state>
+    <view-state id="orderConfirmed" view="orderConfirmed">
+        <transition on="returnToIndex" to="returnToIndex">
+        </transition>
+    </view-state>
+    <end-state id="returnToIndex" view="externalRedirect:http://localhost:8080/index">
+    </end-state>
+
+    <global-transitions>
+        <transition on="cancelShopping" to="returnToIndex"/>
+    </global-transitions>
+</flow>
